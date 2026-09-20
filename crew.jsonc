@@ -1,20 +1,27 @@
 {
   "name": "lead_generation_crew",
   "agents": [
+    "territory_planner",
     "maps_scraper",
     "data_enricher"
   ],
   "tasks": [
     {
+      "name": "plan_territory_task",
+      "description": "Identify the top 10 largest cities in {country}. Output them as a simple comma-separated list.",
+      "expected_output": "A list of 10 cities in {country}.",
+      "agent": "territory_planner"
+    },
+    {
       "name": "scrape_maps_task",
-      "description": "Search for 5 {category} in {location}. Extract company name, address, phone number, and website.",
-      "expected_output": "A list of 5 businesses with their details.",
+      "description": "Using the list of cities from the previous task, search for '{category}' in EACH of those 10 cities using the Google Maps tool. Extract maximum possible results for company name, address, phone number, and website.",
+      "expected_output": "A comprehensive list of businesses found across the top 10 cities.",
       "agent": "maps_scraper"
     },
     {
       "name": "enrich_data_task",
-      "description": "Take the output from scrape_maps_task. Visit the websites to find Owner's Name and Email. IMPORTANT: Do NOT attempt to scrape or visit social media links (e.g., instagram.com, facebook.com, linkedin.com). Only extract data from official company websites.",
-      "expected_output": "A CSV formatted list containing: Company Name, Owner's Name, Address, Email, Contact number, Website URL.",
+      "description": "Take the output from scrape_maps_task. Visit their websites to find the Owner's Name and Email. IMPORTANT: Do NOT attempt to scrape or visit social media links (e.g., instagram.com, facebook.com).",
+      "expected_output": "A final CSV formatted list containing: Company Name, Owner's Name, Address, Email, Contact number, Website URL.",
       "agent": "data_enricher"
     }
   ]
