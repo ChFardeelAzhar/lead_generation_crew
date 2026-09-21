@@ -9,11 +9,18 @@ def get_llm():
     """
     Returns the LLM instance based on environment configuration using CrewAI's native LLM class.
     """
+    use_deepseek = os.getenv("USE_DEEPSEEK", "true").lower() == "true"
     use_local = os.getenv("USE_LOCAL_LLM", "false").lower() == "true"
     use_gemini = os.getenv("USE_GEMINI", "false").lower() == "true"
     use_groq = os.getenv("USE_GROQ", "false").lower() == "true"
     
-    if use_local:
+    if use_deepseek:
+        return LLM(
+            model=os.getenv("DEEPSEEK_MODEL", "deepseek/deepseek-chat"),
+            api_key=os.getenv("DEEPSEEK_API_KEY"),
+            base_url=os.getenv("DEEPSEEK_API_BASE", "https://api.deepseek.com")
+        )
+    elif use_local:
         return LLM(
             model=os.getenv("OLLAMA_MODEL", "ollama/llama3.2:latest"),
             base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")

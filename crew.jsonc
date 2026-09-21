@@ -3,7 +3,8 @@
   "agents": [
     "territory_planner",
     "maps_scraper",
-    "data_enricher"
+    "data_enricher",
+    "csv_generator"
   ],
   "tasks": [
     {
@@ -21,8 +22,14 @@
     {
       "name": "enrich_data_task",
       "description": "Take the output from scrape_maps_task. Visit their websites to find the Owner's Name and Email. IMPORTANT: Do NOT attempt to scrape or visit social media links (e.g., instagram.com, facebook.com).",
-      "expected_output": "A final CSV formatted list containing: Company Name, Owner's Name, Address, Email, Contact number, Website URL.",
+      "expected_output": "A raw list of enriched business records including Company Name, Owner's Name, Address, Email, Contact number, and Website URL.",
       "agent": "data_enricher"
+    },
+    {
+      "name": "format_csv_task",
+      "description": "Format the enriched data strictly as a CSV. CRITICAL: You must wrap every single field in double quotes (\") to prevent commas inside addresses from breaking the columns. Example: \"Company X\",\"John Doe\",\"123 Main St, City, NY\",\"N/A\",\"(123) 456-7890\",\"https://website.com\".",
+      "expected_output": "Properly quoted CSV text only.",
+      "agent": "csv_generator"
     }
   ]
 }

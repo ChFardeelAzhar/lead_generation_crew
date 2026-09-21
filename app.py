@@ -20,8 +20,9 @@ def load_jsonc(filepath):
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
     content = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
-    content = re.sub(r'//.*', '', content)
-    return json.loads(content)
+    # Strip comments // that are not part of URLs like https://
+    content = re.sub(r'(?<!:)\s*//.*', '', content)
+    return json.loads(content, strict=False)
 
 def fetch_db_data():
     """Database se leads fetch kar ke list of lists mein return karta hai for Gradio Dataframe"""
@@ -38,6 +39,7 @@ def run_lead_generation(category, country):
     planner_config = load_jsonc('agents/territory_planner.jsonc')
     scraper_config = load_jsonc('agents/maps_scraper.jsonc')
     enricher_config = load_jsonc('agents/data_enricher.jsonc')
+    csv_generator_config = load_jsonc('agents/csv_generator.jsonc')
 
     agent_llm = get_llm()
     planner = Agent(
@@ -60,12 +62,19 @@ def run_lead_generation(category, country):
         tools=[ScrapeWebsiteTool()],
         llm=agent_llm
     )
+    csv_generator = Agent(
+        role=csv_generator_config['role'],
+        goal=csv_generator_config['goal'],
+        backstory=csv_generator_config['backstory'],
+        llm=agent_llm
+    )
 
     task1 = Task(description=crew_config['tasks'][0]['description'], expected_output=crew_config['tasks'][0]['expected_output'], agent=planner)
     task2 = Task(description=crew_config['tasks'][1]['description'], expected_output=crew_config['tasks'][1]['expected_output'], agent=scraper)
-    task3 = Task(description=crew_config['tasks'][2]['description'], expected_output=crew_config['tasks'][2]['expected_output'], agent=enricher, output_file='bulk_leads.csv')
+    task3 = Task(description=crew_config['tasks'][2]['description'], expected_output=crew_config['tasks'][2]['expected_output'], agent=enricher)
+    task4 = Task(description=crew_config['tasks'][3]['description'], expected_output=crew_config['tasks'][3]['expected_output'], agent=csv_generator, output_file='bulk_leads.csv')
 
-    lead_crew = Crew(agents=[planner, scraper, enricher], tasks=[task1, task2, task3])
+    lead_crew = Crew(agents=[planner, scraper, enricher, csv_generator], tasks=[task1, task2, task3, task4])
     lead_crew.kickoff(inputs={'category': category, 'country': country})
     
     # AI Process complete hone ke baad CSV read kar ke DB mein dalna
@@ -90,7 +99,26 @@ def run_lead_generation(category, country):
     return final_status, fetch_db_data()
 
 # Gradio UI Configuration
-categories = ['HVAC Contractors', 'Plumbers', 'Electricians', 'Dentists', 'Law Firms', 'Real Estate Agents', 'Auto Dealership', 'Hair Saloons', 'Beauty Saloons', 'Gyms', 'Hotels', 'Restaurants']
+categories = [
+    'HVAC Contractors',
+    'Plumbers',
+    'Electricians',
+    'Dentists',
+    'Law Firms',
+    'Real Estate Agents',
+    'Auto Dealership',
+    'Hair Saloons',
+    'Beauty Saloons',
+    'Gyms',
+    'Hotels',
+    'Restaurants',
+    'Cleaning Companies',
+    'Landscaping',
+    'Roofing Companies',
+    'Property Management',
+    'Vet Clinics',
+    'Child care'
+]
 countries = ['UK', 'US']
 headers = ["Company Name", "Owner Name", "Address", "Email", "Phone", "Website", "Category", "Country", "Timestamp"]
 

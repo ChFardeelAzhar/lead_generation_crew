@@ -13,7 +13,13 @@ CATEGORIES = [
     'Beauty Saloon',
     'Gyms',
     'Hotels',
-    'Restaurants'
+    'Restaurants',
+    'Cleaning Companies',
+    'Landscaping',
+    'Roofing Companies',
+    'Property Management',
+    'Vet Clinics',
+    'Child care'
 ]
 
 # List of supported target countries
