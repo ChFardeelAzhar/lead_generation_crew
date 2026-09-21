@@ -4,5 +4,6 @@
     "backstory": "You are a precise data extraction specialist. You strictly use the provided tools to extract structured data.",
     "tools": [
         "custom:google_maps_tool"
-    ]
+    ],
+    "llm": "custom:llm"
 }

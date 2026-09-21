@@ -1,11 +1,21 @@
 import gradio as gr
 import json
+import csv
+import os
 import re
+from dotenv import load_dotenv
 from crewai import Crew, Agent, Task
 from crewai_tools import ScrapeWebsiteTool
 from tools.google_maps_tool import GoogleMapsScraperTool
+import database  # Humari nayi database file import kar li
+from llm import get_llm
 
-# JSONC configuration load karne ka function (handles inline & block comments)
+# Load environment variables (.env)
+load_dotenv()
+
+# Ensure database is initialized when app starts
+database.init_db()
+
 def load_jsonc(filepath):
     with open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -13,60 +23,80 @@ def load_jsonc(filepath):
     content = re.sub(r'//.*', '', content)
     return json.loads(content)
 
-# AI process trigger karne ka main function
+def fetch_db_data():
+    """Database se leads fetch kar ke list of lists mein return karta hai for Gradio Dataframe"""
+    rows = database.get_all_leads()
+    return rows
+
 def run_lead_generation(category, country):
     if not category or not country:
-        return "Error: Please select both a Category and a Country."
+        return "Error: Please select both a Category and a Country.", fetch_db_data()
     
-    # UI par real-time status update
-    yield f"Initializing AI Agents for {category} in {country}...\nTerritory Planner is finding top cities..."
-
-    # Configs load karna
+    status_msg = f"Initializing AI Agents for {category} in {country}...\nAgents are working..."
+    
     crew_config = load_jsonc('crew.jsonc')
     planner_config = load_jsonc('agents/territory_planner.jsonc')
     scraper_config = load_jsonc('agents/maps_scraper.jsonc')
     enricher_config = load_jsonc('agents/data_enricher.jsonc')
 
-    # Agents initialize karna
+    agent_llm = get_llm()
     planner = Agent(
         role=planner_config['role'],
         goal=planner_config['goal'],
-        backstory=planner_config['backstory']
+        backstory=planner_config['backstory'],
+        llm=agent_llm
     )
     scraper = Agent(
         role=scraper_config['role'],
         goal=scraper_config['goal'],
         backstory=scraper_config['backstory'],
-        tools=[GoogleMapsScraperTool()]
+        tools=[GoogleMapsScraperTool()],
+        llm=agent_llm
     )
     enricher = Agent(
         role=enricher_config['role'],
         goal=enricher_config['goal'],
         backstory=enricher_config['backstory'],
-        tools=[ScrapeWebsiteTool()]
+        tools=[ScrapeWebsiteTool()],
+        llm=agent_llm
     )
 
-    # Tasks map karna
     task1 = Task(description=crew_config['tasks'][0]['description'], expected_output=crew_config['tasks'][0]['expected_output'], agent=planner)
     task2 = Task(description=crew_config['tasks'][1]['description'], expected_output=crew_config['tasks'][1]['expected_output'], agent=scraper)
     task3 = Task(description=crew_config['tasks'][2]['description'], expected_output=crew_config['tasks'][2]['expected_output'], agent=enricher, output_file='bulk_leads.csv')
 
-    # Crew start karna
     lead_crew = Crew(agents=[planner, scraper, enricher], tasks=[task1, task2, task3])
-    inputs = {'category': category, 'country': country}
+    lead_crew.kickoff(inputs={'category': category, 'country': country})
     
-    result = lead_crew.kickoff(inputs=inputs)
+    # AI Process complete hone ke baad CSV read kar ke DB mein dalna
+    if os.path.exists('bulk_leads.csv'):
+        with open('bulk_leads.csv', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                # Fallbacks in case AI changes header names slightly
+                company = row.get('Company Name', 'N/A')
+                owner = row.get("Owner's Name", row.get("Owner Name", "Unknown"))
+                address = row.get('Address', 'N/A')
+                email = row.get('Email', 'N/A')
+                phone = row.get('Contact number', row.get('Contact Number', 'N/A'))
+                website = row.get('Website URL', row.get('Website', 'N/A'))
+                
+                # DB mein insert function call (Duplicates ignore ho jayenge)
+                database.insert_lead(company, owner, address, email, phone, website, category, country)
+                
+    final_status = f"Extraction Complete! 🚀\nNew leads successfully processed and saved to the Database."
     
-    # Final data UI par bhejna
-    yield f"Extraction Complete! 🚀\nData saved to 'bulk_leads.csv'.\n\nAgent Summary:\n{result}"
+    # Update status aur fresh table data return karna
+    return final_status, fetch_db_data()
 
 # Gradio UI Configuration
 categories = ['HVAC Contractors', 'Plumbers', 'Electricians', 'Dentists', 'Law Firms', 'Real Estate Agents', 'Auto Dealership', 'Hair Saloons', 'Beauty Saloons', 'Gyms', 'Hotels', 'Restaurants']
 countries = ['UK', 'US']
+headers = ["Company Name", "Owner Name", "Address", "Email", "Phone", "Website", "Category", "Country", "Timestamp"]
 
 with gr.Blocks(title="AI Lead Generation Agent") as ui:
     gr.Markdown("# 🚀 AI Lead Generation Agent")
-    gr.Markdown("Select your target business category and country to start finding leads across top cities.")
+    gr.Markdown("Select your target business category and country to start finding leads. Duplicates are automatically filtered.")
     
     with gr.Row():
         with gr.Column(scale=1):
@@ -75,15 +105,24 @@ with gr.Blocks(title="AI Lead Generation Agent") as ui:
             country_dropdown = gr.Dropdown(choices=countries, label="Country")
             run_btn = gr.Button("Run Agent", variant="primary")
             
-        with gr.Column(scale=3):
-            gr.Markdown("### 📋 Agent Dashboard")
-            output_box = gr.Textbox(label="Agent Status / Results", lines=15, interactive=False)
+            gr.Markdown("### 📋 Agent Status")
+            output_box = gr.Textbox(label="Logs", lines=4, interactive=False)
             
-    # Click event linking UI to Backend
+        with gr.Column(scale=3):
+            gr.Markdown("### 🗃️ Leads Database")
+            # Interactive table jo page load hotay hi DB se current data show karega
+            leads_table = gr.Dataframe(
+                headers=headers,
+                value=fetch_db_data(),
+                interactive=False,
+                wrap=True
+            )
+            
+    # Jab button click ho to agent run ho, aur textbox + table dono update hon
     run_btn.click(
         fn=run_lead_generation,
         inputs=[category_dropdown, country_dropdown],
-        outputs=[output_box]
+        outputs=[output_box, leads_table]
     )
 
 if __name__ == "__main__":

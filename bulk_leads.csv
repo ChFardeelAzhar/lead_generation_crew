@@ -1,17 +1,11 @@
-```csv
-Company Name,Owner's Name,Address,Email,Contact Number,Website URL
-YORK ELECTRICAL CONTRACTORS,Richard Heffernan,162-10 Crocheron Ave, Flushing, NY 11358,[email protected],(718) 353-7227,https://yorkelectrical.com/
-Electrician NYC LLC,Ivan T,489 5th Ave Lobby, New York, NY 10017,[email protected],(212) 547-8867,https://www.electriciannyc.com/
-H&A Electrician,Unknown,40 Fulton St, New York, NY 10038,Unknown,(646) 351-0882,https://www.bestnycelectricianmanhattan.com/
-Electrician Techs,Mo,[Address Unknown],info@electriciantechs.com,(718) 305-4470,http://electriciantechs.com/?utm_campaign=gmb
-New York City Electricians,Unknown,50 St Marks Pl, New York, NY 10003,info@newyorkcityelectricianss.com,(646) 340-9882,https://newyorkcityelectricianss.com/
-Apollo Electric,Unknown,127 W 24th St 5th floor, New York, NY 10011,Unknown,(212) 643-8541,http://apollonyc.com/
-PK & Altman Electric,Peter Pantelic,94 E 4th St, New York, NY 10003,info@pkelectricnyc.com,(646) 630-7164,https://pkelectricnyc.com/?utm_campaign=gmb
-Energize NYC,Unknown,[Address Unknown],Unknown,(646) 718-5996,https://www.energizenyc.com/
-Express Electrical Services,Kim Hopkins,1011 Goodrich Blvd, Los Angeles, CA 90022,service@expresselectricalservices.com,(909) 347-0739,https://expresselectricalservices.com/?utm_source=google-gbp&utm_medium=organic&utm_campaign=*85*express-electrical-services-los-angeles
-Alex & Alex Electrical Services,Alex,3521 S Bentley Ave, Los Angeles, CA 90034,info@alexelectrician.com,(310) 905-5050,http://www.alexelectrician.com/
-Sims & Sons Electric,Unknown,1338 W Eddy St, Chicago, IL 60657,Unknown,(312) 282-1170,https://simsandsonselectric.com/
-Skyline Electric,Unknown,[Address Unknown],info@skylineelectric.co,(312) 818-0400,https://www.skylineelectric.co/
-Sapphire Electric,Unknown,3855 N Cicero Ave, Chicago, IL 60641,sapphireelectricalservices@gmail.com,(773) 299-8701,https://sapphireelectrical.com/
-STS Electric,Unknown,939 W North Ave Ste 746, Chicago, IL 60642,info@stselectric.com,(773) 721-1111,https://stselectric.com/
-```
+Here is the complete list of companies in the format of Company Name, Owner's Name, Address, Email, Contact number, Website URL:
+
+"Company Name","Owner's Name","Address","Email","Contact number","Website URL"
+"Gilligan Law Firm LLP","Spencer Gilligan","2016 Main St Apt 102, Houston, TX 77002","(713) 529-9200","http://www.glaw.me/","(713) 529-9200"
+"Reinartz Law Firm","David Reinartz","21 Main St Ste 205, Hackensack, NJ 07601","(201) 380-8499","https://reinartzlaw.com/hackensack-personal-injury-lawyer/?utm_source=google&utm_medium=organic&utm_campaign=GBP_Hackensack","(201) 380-8499"
+"Freiberger Haber LLP","Jonathan H. Freiberger","425 Broadhollow Rd #416, Melville, NY 11747","(631) 282-8985","https://fhnylaw.com/","(631) 282-8985"
+"Law Offices of Snell & Wilmer","Snell & Wilmer","350 S Grand Ave, Los Angeles, CA 90071","(213) 929-2500","https://www.swlaw.com/","(213) 929-2500"
+"Gould & Ratner LLP","Robert Gould","222 N LaSalle St #300, Chicago, IL 60601","(312) 236-3003","http://www.gouldratner.com/","(312) 236-3003"
+"Elmm Law Group","Erik M. Gordy","3401 N 32nd St, Phoenix, AZ 85018","(480) 780-3657","https://getgordi.com/?utm_campaign=gmb&utm_id=gbp_phoenix&utm_medium=gbp&utm_source=gbp","(480) 780-3657"
+"USD School of Law","Richard Levin","5998 Alcala Park Way, San Diego, CA 92110","(619) 260-4600","http://www.sandiego.edu/law/","(619) 260-4600"
+"Mayer LLP Dallas","Mayer LLP Dallas","750 North St. Paul Street #700, Dallas, TX 75201","(214) 379-6900","http://www.mayerllp.com/","(214) 379-6900"

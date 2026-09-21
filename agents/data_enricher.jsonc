@@ -4,5 +4,6 @@
     "backstory": "You are an expert web researcher. You visit provided websites to accurately extract decision-maker names and emails.",
     "tools": [
         "ScrapeWebsiteTool"
-    ]
+    ],
+    "llm": "custom:llm"
 }
